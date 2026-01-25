@@ -51,7 +51,7 @@ with monthly_transactions as (
         , sum(taxes) as taxes
         , sum(post_tax_deductions) as post_tax_deductions
         , sum(deductions) as deductions
-        , sum(net_pay) as net_pay
+        , sum(net_pay::decimal) as net_pay
         , sum(income_for_reimbursements) as income_for_reimbursements
     from combined.paystubs
     group by 1
@@ -105,29 +105,29 @@ with monthly_transactions as (
 
 select
     monthly_date_spine.budget_month
-    , coalesce(monthly_paystubs.earnings_actual, 0) as earnings_actual
-    , coalesce(monthly_paystubs.salary, 0) as salary
-    , coalesce(monthly_paystubs.bonus, 0) as bonus
-    , coalesce(monthly_paystubs.pre_tax_deductions, 0) as pre_tax_deductions
-    , coalesce(monthly_paystubs.taxes, 0) as taxes
-    , coalesce(monthly_paystubs.retirement_fund, 0) as retirement_fund
-    , coalesce(monthly_paystubs.hsa, 0) as hsa
-    , coalesce(monthly_paystubs.post_tax_deductions, 0) as post_tax_deductions
-    , coalesce(monthly_paystubs.deductions, 0) as total_deductions
-    , coalesce(monthly_paystubs.net_pay, 0) as net_pay
-    , coalesce(monthly_paystubs.income_for_reimbursements, 0) as income_for_reimbursements
-    , coalesce(coalesce(monthly_transactions.income, 0) - coalesce(monthly_paystubs.net_pay, 0), 0) as misc_income
-    , coalesce(monthly_transactions.income, 0) as total_income
-    , coalesce(monthly_transactions.needs_spend, 0) as needs_spend
-    , coalesce(monthly_transactions.wants_spend, 0) as wants_spend
-    , coalesce(monthly_transactions.savings_spend, 0) as savings_spend
-    , coalesce(monthly_transactions.emergency_fund_spend, 0) as emergency_fund_spend
-    , coalesce(monthly_transactions.savings_assigned, 0) as savings_saved
-    , coalesce(monthly_transactions.emergency_fund_assigned, 0) as emergency_fund_saved
-    , coalesce(monthly_transactions.investments_assigned, 0) as investments_saved
-    , coalesce(monthly_transactions.emergency_fund_in_hsa, 0) as emergency_fund_in_hsa
-    , coalesce(needs_spend + wants_spend + savings_spend + emergency_fund_spend, 0) as spent
-    , round(coalesce(total_income, 0) + coalesce(spent, 0), 2) as difference
+    , coalesce(monthly_paystubs.earnings_actual, 0)::decimal as earnings_actual
+    , coalesce(monthly_paystubs.salary, 0)::decimal as salary
+    , coalesce(monthly_paystubs.bonus, 0)::decimal as bonus
+    , coalesce(monthly_paystubs.pre_tax_deductions, 0)::decimal as pre_tax_deductions
+    , coalesce(monthly_paystubs.taxes, 0)::decimal as taxes
+    , coalesce(monthly_paystubs.retirement_fund, 0)::decimal as retirement_fund
+    , coalesce(monthly_paystubs.hsa, 0)::decimal as hsa
+    , coalesce(monthly_paystubs.post_tax_deductions, 0)::decimal as post_tax_deductions
+    , coalesce(monthly_paystubs.deductions, 0)::decimal as total_deductions
+    , coalesce(monthly_paystubs.net_pay, 0)::decimal as net_pay
+    , coalesce(monthly_paystubs.income_for_reimbursements, 0)::decimal as income_for_reimbursements
+    , coalesce(coalesce(monthly_transactions.income, 0)::decimal - coalesce(monthly_paystubs.net_pay, 0)::decimal, 0)::decimal as misc_income
+    , coalesce(monthly_transactions.income, 0)::decimal as total_income
+    , coalesce(monthly_transactions.needs_spend, 0)::decimal as needs_spend
+    , coalesce(monthly_transactions.wants_spend, 0)::decimal as wants_spend
+    , coalesce(monthly_transactions.savings_spend, 0)::decimal as savings_spend
+    , coalesce(monthly_transactions.emergency_fund_spend, 0)::decimal as emergency_fund_spend
+    , coalesce(monthly_transactions.savings_assigned, 0)::decimal as savings_saved
+    , coalesce(monthly_transactions.emergency_fund_assigned, 0)::decimal as emergency_fund_saved
+    , coalesce(monthly_transactions.investments_assigned, 0)::decimal as investments_saved
+    , coalesce(monthly_transactions.emergency_fund_in_hsa, 0)::decimal as emergency_fund_in_hsa
+    , coalesce(needs_spend + wants_spend + savings_spend + emergency_fund_spend, 0)::decimal as spent
+    , round(coalesce(total_income, 0) + coalesce(spent, 0), 2)::decimal as difference
 from monthly_date_spine
 left join monthly_transactions_and_budgeted as monthly_transactions
     on monthly_date_spine.budget_month = monthly_transactions.budget_month

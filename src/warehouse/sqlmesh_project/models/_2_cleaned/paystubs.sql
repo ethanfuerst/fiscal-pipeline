@@ -3,26 +3,11 @@ MODEL (
   kind FULL,
   grain (file_name, pay_period_start_date),
   audits (
-    -- Earnings components sum to earnings total
-    forall(criteria := (
-      earnings_salary + earnings_bonus + earnings_meal_allowance + earnings_pto_payout + earnings_severance + earnings_misc + earnings_expense_reimbursement + earnings_nyc_citi_bike = earnings_total
-    )),
-    -- Pre-tax components sum to pre-tax total
-    forall(criteria := (
-      pre_tax_401k + pre_tax_hsa + pre_tax_fsa + pre_tax_medical = pre_tax_deductions_total
-    )),
-    -- Tax components sum to taxes total
-    forall(criteria := (
-      taxes_medicare + taxes_federal + taxes_state + taxes_city + taxes_nypfl + taxes_disability + taxes_social_security = taxes_total
-    )),
-    -- Post-tax components sum to post-tax total
-    forall(criteria := (
-      post_tax_meal_allowance_offset + post_tax_roth + post_tax_critical_illness + post_tax_ad_d + post_tax_long_term_disability + post_tax_citi_bike = post_tax_deductions_total
-    )),
-    -- on sheet calcs are added together correctly
-    forall(criteria := (
-        net_pay_total + pre_tax_deductions_total + taxes_total + post_tax_deductions_total = earnings_total
-    ))
+    paystubs_earnings_components_sum_to_total,
+    paystubs_pre_tax_components_sum_to_total,
+    paystubs_tax_components_sum_to_total,
+    paystubs_post_tax_components_sum_to_total,
+    paystubs_net_pay_plus_deductions_equals_earnings
   )
 );
 
@@ -66,75 +51,82 @@ with cleaned_paystubs_int as (
     from raw.paystubs
 )
 
+, final as (
+    select
+        file_name
+        , employer
+        , pay_period_start_date
+        , pay_period_end_date
+        , pay_date
+        , net_pay_total
+        , earnings_total
+        , pre_tax_deductions_total
+        , taxes_total
+        , post_tax_deductions_total
+        , earnings_salary
+        , earnings_bonus
+        , earnings_meal_allowance
+        , earnings_pto_payout
+        , earnings_severance
+        , earnings_misc
+        , earnings_expense_reimbursement
+        , earnings_nyc_citi_bike
+        , pre_tax_401k
+        , pre_tax_hsa
+        , pre_tax_fsa
+        , pre_tax_medical
+        , taxes_medicare
+        , taxes_federal
+        , taxes_state
+        , taxes_city
+        , taxes_nypfl
+        , taxes_disability
+        , taxes_social_security
+        , post_tax_meal_allowance_offset
+        , post_tax_roth
+        , post_tax_critical_illness
+        , post_tax_ad_d
+        , post_tax_long_term_disability
+        , post_tax_citi_bike
+        , round(
+            earnings_salary
+            + earnings_bonus
+            + earnings_pto_payout
+            + earnings_severance
+            , 2
+        ) as earnings_custom_calc
+        , round(earnings_bonus + earnings_pto_payout + earnings_severance, 2) as bonus_custom_calc
+        , -1 * round(pre_tax_fsa + pre_tax_medical, 2) as pre_tax_deductions_custom_calc
+        , -1 * round(post_tax_roth + pre_tax_401k, 2) as retirement_fund_custom_calc
+        , -1 * round(
+            taxes_medicare
+            + taxes_federal
+            + taxes_state
+            + taxes_city
+            + taxes_nypfl
+            + taxes_disability
+            + taxes_social_security
+            , 2
+        ) as taxes_custom_calc
+        , -1 * pre_tax_hsa as hsa_custom_calc
+        , -1 * round(
+            post_tax_critical_illness
+            + post_tax_ad_d
+            + post_tax_long_term_disability
+            , 2
+        ) as post_tax_deductions_custom_calc
+        , round(net_pay_total - earnings_expense_reimbursement, 2) as net_pay_custom_calc
+    from cleaned_paystubs_int
+)
+
 select
-    file_name
-    , employer
-    , pay_period_start_date
-    , pay_period_end_date
-    , pay_date
-    , net_pay_total
-    , earnings_total
-    , pre_tax_deductions_total
-    , taxes_total
-    , post_tax_deductions_total
-    , earnings_salary
-    , earnings_bonus
-    , earnings_meal_allowance
-    , earnings_pto_payout
-    , earnings_severance
-    , earnings_misc
-    , earnings_expense_reimbursement
-    , earnings_nyc_citi_bike
-    , pre_tax_401k
-    , pre_tax_hsa
-    , pre_tax_fsa
-    , pre_tax_medical
-    , taxes_medicare
-    , taxes_federal
-    , taxes_state
-    , taxes_city
-    , taxes_nypfl
-    , taxes_disability
-    , taxes_social_security
-    , post_tax_meal_allowance_offset
-    , post_tax_roth
-    , post_tax_critical_illness
-    , post_tax_ad_d
-    , post_tax_long_term_disability
-    , post_tax_citi_bike
+    *
     , round(
-        earnings_salary
-        + earnings_bonus
-        + earnings_pto_payout
-        + earnings_severance
-        , 2
-    ) as earnings_custom_calc
-    , round(earnings_bonus + earnings_pto_payout + earnings_severance, 2) as bonus_custom_calc
-    , -1 * round(pre_tax_fsa + pre_tax_medical, 2) as pre_tax_deductions_custom_calc
-    , -1 * round(post_tax_roth + pre_tax_401k, 2) as retirement_fund_custom_calc
-    , -1 * round(
-        taxes_medicare
-        + taxes_federal
-        + taxes_state
-        + taxes_city
-        + taxes_nypfl
-        + taxes_disability
-        + taxes_social_security
-        , 2
-    ) as taxes_custom_calc
-    , -1 * round(
-        post_tax_critical_illness
-        + post_tax_ad_d
-        + post_tax_long_term_disability
-        , 2
-    ) as post_tax_deductions_custom_calc
-    , round(
-        pre_tax_deductions_total
+        pre_tax_deductions_custom_calc
+        + taxes_custom_calc
         + retirement_fund_custom_calc
-        + pre_tax_hsa
-        + taxes_total
-        + post_tax_deductions_total
+        + hsa_custom_calc
+        + post_tax_deductions_custom_calc
         , 2
     ) as deductions_custom_calc
-    , round(net_pay_total - earnings_expense_reimbursement) as net_pay_custom_calc
-from cleaned_paystubs_int
+from final

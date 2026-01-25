@@ -13,8 +13,9 @@ from src.sheets.batcher import SheetBatcher
 from src.sheets.sheet_formats import (
     OVERVIEW_COLUMN_TITLES,
     OVERVIEW_COLUMN_WIDTH_MAPPING,
-    OVERVIEW_FORMAT,
+    OVERVIEW_MONTHLY_FORMAT,
     OVERVIEW_NOTES,
+    OVERVIEW_YEARLY_FORMAT,
     YEARLY_CATEGORIES_COLUMN_WIDTH_MAPPING,
     YEARLY_CATEGORIES_FORMAT,
     YEARLY_CATEGORIES_NOTES,
@@ -211,8 +212,9 @@ def refresh_overview_dashboard(
 
     worksheet = create_worksheet(sh, title, sheet_height, sheet_width, batcher)
 
-    queue_df_to_sheet(batcher, df, worksheet, 'B2', OVERVIEW_FORMAT)
-    batcher.queue_format('B2:Y2', OVERVIEW_FORMAT['B2:Y2'], worksheet)
+    overview_format = OVERVIEW_MONTHLY_FORMAT if grain == 'monthly' else OVERVIEW_YEARLY_FORMAT
+    queue_df_to_sheet(batcher, df, worksheet, 'B2', overview_format)
+    batcher.queue_format('B2:Y2', overview_format['B2:Y2'], worksheet)
 
     batcher.queue_columns_auto_resize(2, sheet_width, worksheet)
     queue_column_widths(batcher, worksheet, OVERVIEW_COLUMN_WIDTH_MAPPING)
