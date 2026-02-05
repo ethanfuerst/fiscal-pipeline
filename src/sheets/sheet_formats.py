@@ -91,11 +91,18 @@ LEFT_ALIGN_PLAIN_TEXT = {
     'hyperlinkDisplayType': 'PLAIN_TEXT',
 }
 
-OVERVIEW_FORMAT = {
+OVERVIEW_MONTHLY_FORMAT = {
     'B2:Y2': HEADER_FORMAT,
     'B3:B': {
         'horizontalAlignment': 'RIGHT',
         'numberFormat': {'type': 'DATE', 'pattern': 'MM/yyyy'},
+    },
+    'C3:Y': CURRENCY_FORMAT,
+}
+OVERVIEW_YEARLY_FORMAT = {
+    'B2:Y2': HEADER_FORMAT,
+    'B3:B': {
+        'horizontalAlignment': 'RIGHT',
     },
     'C3:Y': CURRENCY_FORMAT,
 }
