@@ -41,7 +41,7 @@ select
     budget_month,
     'Salary' as income_type,
     salary as income_amount,
-from ynab_report.monthly_level_dashboard
+from fiscal_pipeline.monthly_level_dashboard
 
 union all
 
@@ -49,7 +49,7 @@ select
     budget_month,
     'Bonus' as income_type,
     bonus as income_amount,
-from ynab_report.monthly_level_dashboard
+from fiscal_pipeline.monthly_level_dashboard
 
 union all
 
@@ -57,7 +57,7 @@ select
     budget_month,
     'Miscellaneous Income' as income_type,
     misc_income as income_amount,
-from ynab_report.monthly_level_dashboard
+from fiscal_pipeline.monthly_level_dashboard
 ```
 
 <BarChart

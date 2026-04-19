@@ -14,7 +14,7 @@ config = Config(
     gateways={
         'duckdb': GatewayConfig(
             connection=DuckDBConnectionConfig(
-                database=str(project_root / 'ynab_report.duckdb'),
+                database=str(project_root / 'fiscal_pipeline.duckdb'),
                 extensions=[
                     {'name': 'httpfs'},
                 ],
@@ -23,8 +23,8 @@ config = Config(
                         'type': 'S3',
                         'region': 'nyc3',
                         'endpoint': 'nyc3.digitaloceanspaces.com',
-                        'key_id': os.getenv('READ_ACCESS_KEY_ID'),
-                        'secret': os.getenv('READ_SECRET_ACCESS_KEY_ID'),
+                        'key_id': os.getenv('S3_ACCESS_KEY_ID'),
+                        'secret': os.getenv('S3_SECRET_ACCESS_KEY_ID'),
                     }
                 ],
             )

@@ -153,7 +153,7 @@ etl_functions = {
 def etl_ynab_data():
     budget_data = extract_budget_data()
 
-    duckdb_con = DuckDBConnection(need_write_access=True).get_connection()
+    duckdb_con = DuckDBConnection().get_connection()
 
     load_paystubs_from_sheets(duckdb_con)
 

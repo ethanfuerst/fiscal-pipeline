@@ -11,9 +11,13 @@ setup_logging()
 
 def copy_duckdb_file() -> None:
     """Need to do this so evidence can read the file"""
-    source_path = project_root / 'ynab_report.duckdb'
+    source_path = project_root / 'fiscal_pipeline.duckdb'
     dashboard_path = (
-        project_root / 'dashboards' / 'sources' / 'ynab_report' / 'ynab_report.duckdb'
+        project_root
+        / 'dashboards'
+        / 'sources'
+        / 'fiscal_pipeline'
+        / 'fiscal_pipeline.duckdb'
     )
 
     try:

@@ -9,26 +9,21 @@ load_dotenv()
 
 
 class DuckDBConnection:
-    def __init__(self, need_write_access=False):
+    def __init__(self):
         self.connection = duckdb.connect(
-            database=project_root / 'ynab_report.duckdb', read_only=False
+            database=project_root / 'fiscal_pipeline.duckdb', read_only=False
         )
-        self.need_write_access = need_write_access
         self._configure_connection()
 
     def _configure_connection(self):
-        access_type = 'WRITE' if self.need_write_access else 'READ'
-        s3_access_key_id_var_name = f'{access_type}_ACCESS_KEY_ID'
-        s3_secret_access_key_id_var_name = f'{access_type}_SECRET_ACCESS_KEY_ID'
-
         self.connection.execute(
             f"""
             install httpfs;
             load httpfs;
-            CREATE OR REPLACE TEMPORARY SECRET {access_type}_SECRET (
+            CREATE OR REPLACE TEMPORARY SECRET s3_secret (
                 TYPE S3,
-                KEY_ID '{os.getenv(s3_access_key_id_var_name)}',
-                SECRET '{os.getenv(s3_secret_access_key_id_var_name)}',
+                KEY_ID '{os.getenv('S3_ACCESS_KEY_ID')}',
+                SECRET '{os.getenv('S3_SECRET_ACCESS_KEY_ID')}',
                 REGION 'nyc3',
                 ENDPOINT 'nyc3.digitaloceanspaces.com'
             );

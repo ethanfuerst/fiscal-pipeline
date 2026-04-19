@@ -10,11 +10,11 @@ from src.warehouse.create_warehouse import create_data_warehouse
 
 setup_logging()
 
-app = modal.App('ynab-report')
+app = modal.App('fiscal-pipeline')
 
 modal_image = (
     modal.Image.debian_slim(python_version='3.10')
-    .pip_install_from_pyproject("pyproject.toml")
+    .pip_install_from_pyproject('pyproject.toml')
     .add_local_dir(
         'src/warehouse/sqlmesh_project/',
         remote_path='/root/src/warehouse/sqlmesh_project/',
@@ -26,14 +26,14 @@ modal_image = (
 @app.function(
     image=modal_image,
     schedule=modal.Cron('5 8 * * *'),
-    secrets=[modal.Secret.from_name('ynab-report-secrets')],
+    secrets=[modal.Secret.from_name('fiscal-pipeline-secrets')],
     retries=modal.Retries(
         max_retries=3,
         backoff_coefficient=1.0,
         initial_delay=60.0,
     ),
 )
-def ynab_report_app(
+def update_google_sheet(
     sync_s3: bool = True,
     update_dashboards: bool = True,
     is_local_run: bool = False,
@@ -70,10 +70,10 @@ if __name__ == '__main__':
     sync_s3 = args.sync_s3
     update_dashboards = args.update_dashboards
 
-    logging.info('Running ynab_report_app locally')
-    ynab_report_app.local(
+    logging.info('Running fiscal_pipeline_app locally')
+    update_google_sheet.local(
         sync_s3=sync_s3,
         update_dashboards=update_dashboards,
         is_local_run=True,
     )
-    logging.info('ynab_report_app completed')
+    logging.info('fiscal_pipeline_app completed')
