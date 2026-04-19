@@ -42,7 +42,7 @@ select
     budget_year,
     'Pre Tax Earnings' as income_type,
     earnings_actual as income_amount,
-from ynab_report.yearly_level_dashboard
+from fiscal_pipeline.yearly_level_dashboard
 
 union all
 
@@ -50,7 +50,7 @@ select
     budget_year,
     'Miscellaneous Income' as income_type,
     misc_income as income_amount,
-from ynab_report.yearly_level_dashboard
+from fiscal_pipeline.yearly_level_dashboard
 ```
 
 <BarChart

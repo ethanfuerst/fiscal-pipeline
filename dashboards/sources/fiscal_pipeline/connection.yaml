@@ -1,8 +1,8 @@
 # This file was automatically generated
 type: duckdb
-name: ynab_report
+name: fiscal_pipeline
 options:
-  filename: ynab_report.duckdb
+  filename: fiscal_pipeline.duckdb
 # Advanced Options, you probably don't want to change this
 buildOptions:
   batchSize: 1000000
