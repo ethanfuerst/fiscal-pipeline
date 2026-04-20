@@ -8,4 +8,4 @@ def try_cast_to_float(evaluator, column_name: str):
 
 @macro()
 def try_strip_date(evaluator, column_name: str):
-    return f"strptime(if({column_name} = \'\', null, {column_name}), '%m/%d/%Y')"
+    return f"strptime(if({column_name} = '', null, {column_name}), '%m/%d/%Y')"

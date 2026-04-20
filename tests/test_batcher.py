@@ -311,16 +311,16 @@ class TestApiCallReduction:
         batcher.register_worksheet(mock_worksheet)
 
         for i in range(10):
-            batcher.queue_values(f'Sheet1!A{i+1}', [[f'value_{i}']])
+            batcher.queue_values(f'Sheet1!A{i + 1}', [[f'value_{i}']])
 
         for i in range(20):
-            batcher.queue_format(f'A{i+1}', {'bold': True}, mock_worksheet)
+            batcher.queue_format(f'A{i + 1}', {'bold': True}, mock_worksheet)
 
         for col in ['A', 'B', 'C', 'D', 'E']:
             batcher.queue_column_width(col, 100, mock_worksheet)
 
         for i in range(10):
-            batcher.queue_notes({f'A{i+1}': f'Note {i}'}, mock_worksheet)
+            batcher.queue_notes({f'A{i + 1}': f'Note {i}'}, mock_worksheet)
 
         batcher.flush()
 
