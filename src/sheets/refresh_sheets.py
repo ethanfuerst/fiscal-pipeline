@@ -16,9 +16,6 @@ from src.sheets.sheet_formats import (
     OVERVIEW_MONTHLY_FORMAT,
     OVERVIEW_NOTES,
     OVERVIEW_YEARLY_FORMAT,
-    YEARLY_CATEGORIES_COLUMN_WIDTH_MAPPING,
-    YEARLY_CATEGORIES_FORMAT,
-    YEARLY_CATEGORIES_NOTES,
 )
 from src.sheets.utils import get_df_from_table
 from src.utils.logging_config import setup_logging
@@ -228,70 +225,6 @@ def refresh_overview_dashboard(
     logging.info(f'{title} queued for update')
 
 
-def refresh_yearly_categories_dashboards(
-    sh: Spreadsheet,
-    batcher: SheetBatcher,
-) -> None:
-    """Refresh all yearly categories dashboards."""
-    years = sorted(
-        get_df_from_table('dashboards.yearly_level')['budget_year'].values,
-        reverse=True,
-    )
-
-    logging.info(
-        f'Updating yearly categories dashboards for years: {", ".join(map(str, years))}'
-    )
-
-    for year in years:
-        logging.info(f'Updating {year} - Categories')
-        title = f'{year} - Categories'
-
-        worksheet = create_worksheet(sh, title, 34, 16, batcher)
-
-        df_needs = get_df_from_table(
-            'dashboards.yearly_needs', f'budget_year = {year}'
-        )[['subcategory_group', 'category_name', 'spend']]
-        df_needs.columns = ['Subcategory Group', 'Needs', 'Spend']
-        queue_df_to_sheet(batcher, df_needs, worksheet, 'E2')
-
-        df_wants = get_df_from_table(
-            'dashboards.yearly_wants', f'budget_year = {year}'
-        )[['subcategory_group', 'category_name', 'spend']]
-        df_wants.columns = ['Subcategory Group', 'Wants', 'Spend']
-        queue_df_to_sheet(batcher, df_wants, worksheet, 'I2')
-
-        df_savings = get_df_from_table(
-            'dashboards.yearly_other', f'budget_year = {year}'
-        )[['category_name', 'assigned', 'spend']]
-        df_savings.columns = ['Other', 'Assigned', 'Spend']
-        queue_df_to_sheet(batcher, df_savings, worksheet, 'M2')
-
-        df_other = get_df_from_table(
-            'dashboards.yearly_category_group', f'budget_year = {year}'
-        )[['category_group_name_mapping', 'assigned', 'spend']]
-        df_other.columns = ['Category Group', 'Assigned', 'Spend']
-        queue_df_to_sheet(batcher, df_other, worksheet, 'M12')
-
-        df_subcategory = get_df_from_table(
-            'dashboards.yearly_subcategory_group', f'budget_year = {year}'
-        )[['subcategory_group', 'assigned', 'spend']]
-        df_subcategory.columns = ['Subcategory Group', 'Assigned', 'Spend']
-        queue_df_to_sheet(batcher, df_subcategory, worksheet, 'M20')
-
-        df_paycheck = get_df_from_table(
-            'dashboards.yearly_paychecks', f'budget_year = {year}'
-        )[['paycheck_column', 'paycheck_value']]
-        df_paycheck.columns = ['Paycheck Value', 'Amount']
-        queue_df_to_sheet(batcher, df_paycheck, worksheet, 'B2')
-
-        queue_format_dict(batcher, worksheet, YEARLY_CATEGORIES_FORMAT)
-        queue_column_widths(batcher, worksheet, YEARLY_CATEGORIES_COLUMN_WIDTH_MAPPING)
-        batcher.queue_notes(YEARLY_CATEGORIES_NOTES, worksheet)
-        queue_last_updated_cell(batcher, worksheet)
-
-        logging.info(f'{year} - Categories queued for update')
-
-
 def refresh_sheets() -> None:
     """Main function to refresh all Google Sheets dashboards."""
     credentials_dict = json.loads(os.getenv('GSPREAD_CREDENTIALS').replace('\n', '\\n'))
@@ -311,11 +244,5 @@ def refresh_sheets() -> None:
             refresh_overview_dashboard(sh, batcher, 'monthly')
         except Exception as e:
             logging.error(f'Failed to queue monthly overview dashboard: {e}')
-
-        logging.info('Refreshing yearly categories dashboards')
-        try:
-            refresh_yearly_categories_dashboards(sh, batcher)
-        except Exception as e:
-            logging.error(f'Failed to queue yearly categories dashboards: {e}')
 
     logging.info('Sheet refresh complete')
