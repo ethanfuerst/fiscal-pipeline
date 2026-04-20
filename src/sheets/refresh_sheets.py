@@ -212,7 +212,9 @@ def refresh_overview_dashboard(
 
     worksheet = create_worksheet(sh, title, sheet_height, sheet_width, batcher)
 
-    overview_format = OVERVIEW_MONTHLY_FORMAT if grain == 'monthly' else OVERVIEW_YEARLY_FORMAT
+    overview_format = (
+        OVERVIEW_MONTHLY_FORMAT if grain == 'monthly' else OVERVIEW_YEARLY_FORMAT
+    )
     queue_df_to_sheet(batcher, df, worksheet, 'B2', overview_format)
     batcher.queue_format('B2:Y2', overview_format['B2:Y2'], worksheet)
 
