@@ -30,7 +30,4 @@ config = Config(
             )
         )
     },
-    variables={
-        'sheet_name': 'Spending Dashboard',
-    },
 )

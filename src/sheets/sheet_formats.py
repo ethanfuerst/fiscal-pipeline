@@ -51,25 +51,6 @@ OVERVIEW_COLUMN_TITLES = [
     'Total Spend',
     'Net Income',
 ]
-YEARLY_CATEGORIES_COLUMN_WIDTH_MAPPING = {
-    'A': 21,
-    'B': 185,
-    'C': 90,
-    'D': 21,
-    'E': 190,
-    'F': 175,
-    'G': 85,
-    'H': 21,
-    'I': 210,
-    'J': 180,
-    'K': 85,
-    'L': 21,
-    'M': 230,
-    'N': 85,
-    'O': 85,
-    'P': 21,
-}
-
 CURRENCY_FORMAT = {
     'horizontalAlignment': 'RIGHT',
     'numberFormat': {
@@ -122,41 +103,4 @@ OVERVIEW_NOTES = {
     'W2': 'Amount spent on items that can be reimbursed by the HSA, but have not been reimbursed yet. This money can be used for emergency expenses as a last resort.',
     'X2': 'Needs Spend + Wants Spend + Savings Spend + Emergency Fund Spend',
     'Y2': 'Total Income (Net to Account) - Total Spend',
-}
-
-YEARLY_CATEGORIES_FORMAT = {
-    'B2:C2': HEADER_FORMAT_NO_WRAP,
-    'C3:C': CURRENCY_FORMAT,
-    'E2:G2': HEADER_FORMAT_NO_WRAP,
-    'E3:F': LEFT_ALIGN_PLAIN_TEXT,
-    'G3:G': CURRENCY_FORMAT,
-    'I2:K2': HEADER_FORMAT_NO_WRAP,
-    'I3:J': LEFT_ALIGN_PLAIN_TEXT,
-    'K3:K': CURRENCY_FORMAT,
-    'M2:O2': HEADER_FORMAT_NO_WRAP,
-    'M3:M10': LEFT_ALIGN_PLAIN_TEXT,
-    'N3:O10': CURRENCY_FORMAT,
-    'M12:O12': HEADER_FORMAT_NO_WRAP,
-    'M13:M18': LEFT_ALIGN_PLAIN_TEXT,
-    'N13:O18': CURRENCY_FORMAT,
-    'M20:O20': HEADER_FORMAT_NO_WRAP,
-    'N21:O33': CURRENCY_FORMAT,
-}
-YEARLY_CATEGORIES_NOTES = {
-    'B3': 'Gross Earnings',
-    'B4': 'FSA and Medical',
-    'B6': 'Includes Bonus, PTO Payout, and Severance',
-    'B7': 'Medicare, Federal, State, City, NYPFL, Disability, and Social Security',
-    'B8': 'Pre Tax or Roth',
-    'B9': 'HSA Contribution',
-    'B10': 'Critical Illness, AD & D, Long Term Disability',
-    'B11': 'Pre-Tax Deductions + Taxes + HSA Contribution + Post-Tax Deductions',
-    'B12': 'Gross Earnings - Total Deductions',
-    'B13': 'Income for Items Reimbursed by Employer. Not counted in Total Income because the spend is categorized as a net zero expense category.',
-    'B14': 'Any income not from an employer. Credit Card Cash Back, Selling items, gifts, etc.',
-    'B15': 'Net Pay + Miscellaneous Income',
-    'B16': 'Needs Spend + Wants Spend + Savings Spend + Emergency Fund Spend',
-    'B17': 'Total Income (Net to Account) - Total Spend',
-    'M8': 'Amount spent on items that can be reimbursed by the HSA, but have not been reimbursed yet. This money can be used for emergency expenses as a last resort.',
-    'M17': 'Investment categories equal 0 at the end of the month and all money budgeted is invested.',
 }
