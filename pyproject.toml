@@ -12,12 +12,11 @@ dependencies = [
     "urllib3>=2.3.0",
     "pandas>=2.2.3",
     "modal>=1.0.0",
-    "duckdb>=1.4.0",
     "sqlfluff>=3.3.0",
-    "gspread>=6.1.4",
     "emoji>=2.14.1",
     "sqlmesh[web]>=0.186.1",
     "python-dotenv>=1.0.0",
+    "eftoolkit>=3.2.0,<4.0.0",
 ]
 
 [build-system]
