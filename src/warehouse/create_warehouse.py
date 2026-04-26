@@ -1,10 +1,10 @@
 import logging
 import shutil
 
+from eftoolkit.utils import setup_logging
 from sqlmesh.core.context import Context
 
 from src import project_root
-from src.utils.logging_config import setup_logging
 
 setup_logging()
 

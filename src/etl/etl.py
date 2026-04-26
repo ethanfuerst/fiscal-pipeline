@@ -4,161 +4,95 @@ import os
 from datetime import datetime
 from typing import Dict
 
-import duckdb
 import pandas as pd
 import requests
 from dotenv import load_dotenv
-from gspread import service_account_from_dict
+from eftoolkit.gsheets import Spreadsheet
+from eftoolkit.s3 import S3FileSystem
+from eftoolkit.utils import setup_logging
 
-from src.utils.db_connection import DuckDBConnection
-from src.utils.s3_utils import load_df_to_s3_table
+from src.utils import get_s3
 
+setup_logging()
 load_dotenv()
+
+BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 
 def extract_budget_data() -> Dict:
     logging.info('Extracting budget data')
 
     budget_id = os.getenv('BUDGET_ID')
-    url = f'https://api.ynab.com/v1/budgets/{budget_id}'
-
     bearer_token = os.getenv('BEARER_TOKEN')
-    headers = {
-        'Authorization': f'Bearer {bearer_token}',
-    }
-
-    response = requests.get(url, headers=headers)
-    budget_data = response.json()['data']['budget']
+    response = requests.get(
+        f'https://api.ynab.com/v1/budgets/{budget_id}',
+        headers={'Authorization': f'Bearer {bearer_token}'},
+    )
 
     logging.info('Extracted budget data')
 
-    return budget_data
+    return response.json()['data']['budget']
 
 
-def extract_category_groups(
-    budget_data: Dict, duckdb_con: duckdb.DuckDBPyConnection
-) -> None:
-    category_groups = pd.DataFrame(budget_data['category_groups'])
-
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=category_groups.reset_index(drop=True),
-        s3_key='category-groups',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows')
+def extract_category_groups(budget_data: Dict, s3: S3FileSystem) -> None:
+    df = pd.DataFrame(budget_data['category_groups']).reset_index(drop=True)
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/category-groups.parquet')
 
 
-def extract_categories(
-    budget_data: Dict, duckdb_con: duckdb.DuckDBPyConnection
-) -> None:
+def extract_categories(budget_data: Dict, s3: S3FileSystem) -> None:
     dfs = []
-
     for month in budget_data['months']:
-        month_date = month['month']
-        monthly_categories = pd.DataFrame(month['categories'])
+        month_date = datetime.strptime(month['month'], '%Y-%m-%d')
+        monthly = pd.DataFrame(month['categories'])
+        if monthly.empty:
+            continue
+        monthly['year'] = month_date.year
+        monthly['month'] = month_date.month
+        dfs.append(monthly)
 
-        month_date = datetime.strptime(month_date, '%Y-%m-%d')
-        monthly_categories['year'] = month_date.year
-        monthly_categories['month'] = month_date.month
-
-        if not monthly_categories.empty:
-            dfs.append(monthly_categories)
-
-    df = pd.concat(dfs)
-
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=df.reset_index(drop=True),
-        s3_key='monthly-categories',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows')
+    df = pd.concat(dfs).reset_index(drop=True)
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/monthly-categories.parquet')
 
 
-def extract_transactions(
-    budget_data: Dict, duckdb_con: duckdb.DuckDBPyConnection
-) -> None:
-    transactions = pd.DataFrame(budget_data['transactions'])
-
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=transactions.reset_index(drop=True),
-        s3_key='transactions',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows')
+def extract_transactions(budget_data: Dict, s3: S3FileSystem) -> None:
+    df = pd.DataFrame(budget_data['transactions']).reset_index(drop=True)
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/transactions.parquet')
 
 
-def extract_subtransactions(
-    budget_data: Dict, duckdb_con: duckdb.DuckDBPyConnection
-) -> None:
-    subtransactions = pd.DataFrame(budget_data['subtransactions'])
-
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=subtransactions,
-        s3_key='subtransactions',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows')
+def extract_subtransactions(budget_data: Dict, s3: S3FileSystem) -> None:
+    df = pd.DataFrame(budget_data['subtransactions']).reset_index(drop=True)
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/subtransactions.parquet')
 
 
-def load_paystubs_from_sheets(duckdb_con: duckdb.DuckDBPyConnection) -> None:
-    credentials_dict = json.loads(os.getenv('GSPREAD_CREDENTIALS').replace('\n', '\\n'))
-    gc = service_account_from_dict(credentials_dict)
-    worksheet = gc.open('Paystubs').worksheet('all_paystubs')
-
-    raw = worksheet.get_all_values()
-    df = pd.DataFrame(data=raw[1:], columns=raw[0]).astype(str)
-
-    logging.info('Loading paystubs to S3 bucket')
-
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=df,
-        s3_key='raw-paystubs',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows to S3 bucket for raw-paystubs')
+def extract_accounts(budget_data: Dict, s3: S3FileSystem) -> None:
+    df = pd.DataFrame(budget_data['accounts']).reset_index(drop=True)
+    # YNAB returns debt_* fields as dicts keyed by date; for non-debt accounts
+    # they're empty {}, which pyarrow can't write as a struct with no children.
+    # Serialize any dict-valued column to a JSON string to keep the schema stable.
+    for col in df.columns:
+        if df[col].apply(lambda v: isinstance(v, dict)).any():
+            df[col] = df[col].apply(
+                lambda v: json.dumps(v) if isinstance(v, dict) else v
+            )
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/accounts.parquet')
 
 
-def extract_accounts(budget_data: Dict, duckdb_con: duckdb.DuckDBPyConnection) -> None:
-    accounts = pd.DataFrame(budget_data['accounts'])
+def load_paystubs_from_sheets(s3: S3FileSystem) -> None:
+    credentials = json.loads(os.getenv('GSPREAD_CREDENTIALS').replace('\n', '\\n'))
+    with Spreadsheet(credentials=credentials, spreadsheet_name='Paystubs') as ss:
+        df = ss.worksheet('all_paystubs').read(dtype=str)
 
-    rows_loaded = load_df_to_s3_table(
-        duckdb_con=duckdb_con,
-        df=accounts,
-        s3_key='accounts',
-        bucket_name=os.getenv('BUCKET_NAME'),
-    )
-
-    logging.info(f'Loaded {rows_loaded} rows to S3 bucket for accounts')
+    df = df.reset_index(drop=True)
+    s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/raw-paystubs.parquet')
 
 
-etl_functions = {
-    'category-groups': extract_category_groups,
-    'monthly-categories': extract_categories,
-    'transactions': extract_transactions,
-    'subtransactions': extract_subtransactions,
-    'accounts': extract_accounts,
-}
-
-
-def etl_ynab_data():
+def etl_ynab_data() -> None:
+    s3 = get_s3()
     budget_data = extract_budget_data()
 
-    duckdb_con = DuckDBConnection().get_connection()
-
-    load_paystubs_from_sheets(duckdb_con)
-
-    logging.info('Extracting data from endpoints')
-    for endpoint, function in etl_functions.items():
-        logging.info(f'Extracting {endpoint} data')
-        function(budget_data, duckdb_con)
-        logging.info(f'Extracted {endpoint} data')
+    load_paystubs_from_sheets(s3)
+    extract_category_groups(budget_data, s3)
+    extract_categories(budget_data, s3)
+    extract_transactions(budget_data, s3)
+    extract_subtransactions(budget_data, s3)
+    extract_accounts(budget_data, s3)

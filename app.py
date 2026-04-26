@@ -2,10 +2,10 @@ import argparse
 import logging
 
 import modal
+from eftoolkit.utils import setup_logging
 
 from src.etl.etl import etl_ynab_data
 from src.sheets.refresh_sheets import refresh_sheets
-from src.utils.logging_config import setup_logging
 from src.warehouse.create_warehouse import create_data_warehouse
 
 setup_logging()
