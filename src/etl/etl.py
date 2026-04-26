@@ -66,6 +66,14 @@ def extract_subtransactions(budget_data: Dict, s3: S3FileSystem) -> None:
 
 def extract_accounts(budget_data: Dict, s3: S3FileSystem) -> None:
     df = pd.DataFrame(budget_data['accounts']).reset_index(drop=True)
+    # YNAB returns debt_* fields as dicts keyed by date; for non-debt accounts
+    # they're empty {}, which pyarrow can't write as a struct with no children.
+    # Serialize any dict-valued column to a JSON string to keep the schema stable.
+    for col in df.columns:
+        if df[col].apply(lambda v: isinstance(v, dict)).any():
+            df[col] = df[col].apply(
+                lambda v: json.dumps(v) if isinstance(v, dict) else v
+            )
     s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/accounts.parquet')
 
 
