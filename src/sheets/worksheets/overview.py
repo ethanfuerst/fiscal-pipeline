@@ -52,13 +52,21 @@ class OverviewWorksheetBase:
         timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
         ctx.worksheet.write_values('B1', [[f'Last Updated: {timestamp}']])
 
+    def trim_to_data_hook(self, ctx: HookContext) -> None:
+        # Header writes at B2, so the last data row is row 2 + len(df).
+        # +1 leaves a single empty buffer row below; columns are B..Y data
+        # plus column A (left buffer) and column Z (right buffer).
+        num_rows = len(ctx.asset.df)
+        num_cols = len(ctx.asset.df.columns)
+        ctx.worksheet.resize_sheet(rows=num_rows + 3, columns=num_cols + 2)
+
     def generate(self, config: dict, context: dict) -> List[WorksheetAsset]:
         df = self.load_df(config['db'])
         return [
             WorksheetAsset(
                 df=df,
                 location=CellLocation(cell='B2'),
-                post_write_hooks=[self.format_and_stamp_hook],
+                post_write_hooks=[self.format_and_stamp_hook, self.trim_to_data_hook],
             )
         ]
 
