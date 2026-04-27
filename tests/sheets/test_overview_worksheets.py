@@ -25,12 +25,16 @@ class _RecordingWorksheet:
     def __init__(self):
         self.format_calls: list[tuple[str, dict]] = []
         self.values_writes: list[tuple[str, list]] = []
+        self.resize_calls: list[tuple[int | None, int | None]] = []
 
     def format_range(self, range_name, fmt):
         self.format_calls.append((range_name, fmt))
 
     def write_values(self, range_name, values):
         self.values_writes.append((range_name, values))
+
+    def resize_sheet(self, rows=None, columns=None):
+        self.resize_calls.append((rows, columns))
 
 
 @pytest.fixture
@@ -106,6 +110,24 @@ def test_post_write_hook_applies_multi_range_format_and_timestamp(yearly_df):
     last_updated_range, last_updated_values = fake_ws.values_writes[0]
     assert last_updated_range == 'B1'
     assert last_updated_values[0][0].startswith('Last Updated: ')
+
+
+def test_trim_to_data_hook_resizes_to_one_row_and_column_buffer(yearly_df):
+    db = _FakeDuckDB({'dashboards.yearly_level': yearly_df})
+    ws_def = OverviewYearlyWorksheet()
+    assets = ws_def.generate({'db': db, 'sheet_name': 'Test'}, {})
+    asset = assets[0]
+    fake_ws = _RecordingWorksheet()
+    ctx = HookContext(
+        worksheet=fake_ws,
+        asset=asset,
+        worksheet_name=ws_def.name,
+        runner_context={},
+    )
+
+    asset.post_write_hooks[1](ctx)
+
+    assert fake_ws.resize_calls == [(len(yearly_df) + 3, len(asset.df.columns) + 2)]
 
 
 def test_get_formatting_includes_notes_widths_borders_resize(yearly_df):
