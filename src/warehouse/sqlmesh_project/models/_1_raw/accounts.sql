@@ -1,19 +1,8 @@
 MODEL (
   name raw.accounts,
   kind FULL,
-  grain id
+  grain id,
+  description 'Raw YNAB account snapshots loaded directly from parquet, one row per account at last sync.'
 );
 
-select
-    id
-    , name
-    , type
-    , on_budget
-    , closed
-    , note
-    , balance
-    , cleared_balance
-    , uncleared_balance
-    , transfer_payee_id
-    , last_reconciled_at
-from @get_s3_parquet_path('accounts')
+select * from @get_s3_parquet_path('accounts')

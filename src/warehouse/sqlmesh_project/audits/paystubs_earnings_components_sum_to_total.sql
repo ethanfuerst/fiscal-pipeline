@@ -5,24 +5,24 @@ AUDIT (
 SELECT
   file_name,
   pay_period_start_date,
-  earnings_salary,
-  earnings_bonus,
-  earnings_meal_allowance,
-  earnings_pto_payout,
-  earnings_severance,
-  earnings_misc,
-  earnings_expense_reimbursement,
-  earnings_nyc_citi_bike,
-  earnings_salary + earnings_bonus + earnings_meal_allowance + earnings_pto_payout + earnings_severance + earnings_misc + earnings_expense_reimbursement + earnings_nyc_citi_bike AS calculated_total,
-  earnings_total
+  earnings_salary_usd,
+  earnings_bonus_usd,
+  earnings_meal_allowance_usd,
+  earnings_pto_payout_usd,
+  earnings_severance_usd,
+  earnings_misc_usd,
+  earnings_expense_reimbursement_usd,
+  earnings_nyc_citi_bike_usd,
+  earnings_salary_usd + earnings_bonus_usd + earnings_meal_allowance_usd + earnings_pto_payout_usd + earnings_severance_usd + earnings_misc_usd + earnings_expense_reimbursement_usd + earnings_nyc_citi_bike_usd AS calculated_total,
+  earnings_total_usd
 FROM @this_model
 WHERE NOT (
-  earnings_salary
-  + earnings_bonus
-  + earnings_meal_allowance
-  + earnings_pto_payout
-  + earnings_severance
-  + earnings_misc
-  + earnings_expense_reimbursement
-  + earnings_nyc_citi_bike = earnings_total
+  earnings_salary_usd
+  + earnings_bonus_usd
+  + earnings_meal_allowance_usd
+  + earnings_pto_payout_usd
+  + earnings_severance_usd
+  + earnings_misc_usd
+  + earnings_expense_reimbursement_usd
+  + earnings_nyc_citi_bike_usd = earnings_total_usd
 );

@@ -1,16 +1,8 @@
 MODEL (
   name raw.subtransactions,
   kind FULL,
-  grain id
+  grain id,
+  description 'Raw YNAB sub-transaction snapshots loaded directly from parquet — split components of split transactions.'
 );
 
-select
-    id
-    , transaction_id
-    , amount
-    , memo
-    , payee_id
-    , category_id
-    , transfer_account_id
-    , deleted
-from @get_s3_parquet_path('subtransactions')
+select * from @get_s3_parquet_path('subtransactions')

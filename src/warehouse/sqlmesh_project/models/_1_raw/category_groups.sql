@@ -1,12 +1,8 @@
 MODEL (
   name raw.category_groups,
   kind FULL,
-  grain id
+  grain id,
+  description 'Raw YNAB category-group snapshots loaded directly from parquet.'
 );
 
-select
-    id
-    , name
-    , hidden
-    , deleted
-from @get_s3_parquet_path('category-groups')
+select * from @get_s3_parquet_path('category-groups')
