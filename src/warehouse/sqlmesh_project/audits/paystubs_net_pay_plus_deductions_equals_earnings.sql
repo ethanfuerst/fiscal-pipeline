@@ -5,16 +5,16 @@ AUDIT (
 SELECT
   file_name,
   pay_period_start_date,
-  net_pay_total,
-  pre_tax_deductions_total,
-  taxes_total,
-  post_tax_deductions_total,
-  net_pay_total + pre_tax_deductions_total + taxes_total + post_tax_deductions_total AS calculated_total,
-  earnings_total
+  net_pay_total_usd,
+  pre_tax_deductions_total_usd,
+  taxes_total_usd,
+  post_tax_deductions_total_usd,
+  net_pay_total_usd + pre_tax_deductions_total_usd + taxes_total_usd + post_tax_deductions_total_usd AS calculated_total,
+  earnings_total_usd
 FROM @this_model
 WHERE NOT (
-  net_pay_total
-  + pre_tax_deductions_total
-  + taxes_total
-  + post_tax_deductions_total = earnings_total
+  net_pay_total_usd
+  + pre_tax_deductions_total_usd
+  + taxes_total_usd
+  + post_tax_deductions_total_usd = earnings_total_usd
 );

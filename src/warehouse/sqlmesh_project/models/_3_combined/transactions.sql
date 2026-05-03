@@ -9,11 +9,12 @@ with all_transactions as (
         transactions.id
         , transactions.account_id
         , transactions.category_id
-        , transactions.amount
+        , transactions.amount_usd as amount
         , transactions.memo
+        , transactions.paystub_file_name
         , subtransactions.id as subtransaction_id
         , subtransactions.category_id as sub_category_id
-        , subtransactions.amount as subtransaction_amount
+        , subtransactions.amount_usd as subtransaction_amount
         , subtransactions.memo as subtransaction_memo
         , transactions.transaction_date
     from cleaned.transactions as transactions
@@ -28,6 +29,7 @@ with all_transactions as (
         , coalesce(sub_category_id, category_id) as category_id
         , coalesce(subtransaction_amount, amount) as amount
         , coalesce(subtransaction_memo, memo) as memo
+        , paystub_file_name
         , transaction_date
     from all_transactions
 )
@@ -42,6 +44,7 @@ select
     , category_groups.subcategory_group_name
     , transactions_int.amount
     , transactions_int.memo
+    , transactions_int.paystub_file_name
     , accounts.name as account_name
     , accounts.type as account_type
 from transactions_int as transactions_int
