@@ -87,14 +87,18 @@ with cleaned_paystubs_int as (
         /* Post-tax deductions */
         , post_tax_meal_allowance_offset as post_tax_meal_allowance_offset_raw  -- Offset for taxable meal allowance, raw string
         , post_tax_fitness_benefit_offset as post_tax_fitness_benefit_offset_raw  -- Offset for taxable fitness benefit, raw string
-        , post_tax_roth as post_tax_roth_raw  -- Roth 401(k) contributions, raw string
+        , post_tax_roth_401k as post_tax_roth_401k_raw  -- Roth 401(k) contributions, raw string
+        , post_tax_401k_after_tax_spillover as post_tax_401k_after_tax_spillover_raw  -- After-tax 401(k) spillover contributions, raw string
+        , post_tax_401k_after_tax_bonus as post_tax_401k_after_tax_bonus_raw  -- After-tax 401(k) bonus contributions, raw string
         , post_tax_critical_illness as post_tax_critical_illness_raw  -- Critical illness premium, raw string
         , post_tax_ad_d as post_tax_ad_d_raw  -- AD&D premium, raw string
         , post_tax_long_term_disability as post_tax_long_term_disability_raw  -- Long-term disability premium, raw string
         , post_tax_citi_bike as post_tax_citi_bike_raw  -- Post-tax Citi Bike deduction, raw string
         , @try_cast_to_float(post_tax_meal_allowance_offset) as post_tax_meal_allowance_offset_usd  -- Meal allowance offset in USD
         , @try_cast_to_float(post_tax_fitness_benefit_offset) as post_tax_fitness_benefit_offset_usd  -- Fitness benefit offset in USD
-        , @try_cast_to_float(post_tax_roth) as post_tax_roth_usd  -- Roth 401(k) contributions in USD
+        , @try_cast_to_float(post_tax_roth_401k) as post_tax_roth_401k_usd  -- Roth 401(k) contributions in USD
+        , @try_cast_to_float(post_tax_401k_after_tax_spillover) as post_tax_401k_after_tax_spillover_usd  -- After-tax 401(k) spillover contributions in USD
+        , @try_cast_to_float(post_tax_401k_after_tax_bonus) as post_tax_401k_after_tax_bonus_usd  -- After-tax 401(k) bonus contributions in USD
         , @try_cast_to_float(post_tax_critical_illness) as post_tax_critical_illness_usd  -- Critical illness premium in USD
         , @try_cast_to_float(post_tax_ad_d) as post_tax_ad_d_usd  -- AD&D premium in USD
         , @try_cast_to_float(post_tax_long_term_disability) as post_tax_long_term_disability_usd  -- Long-term disability premium in USD
@@ -142,7 +146,9 @@ with cleaned_paystubs_int as (
         , taxes_social_security_raw
         , post_tax_meal_allowance_offset_raw
         , post_tax_fitness_benefit_offset_raw
-        , post_tax_roth_raw
+        , post_tax_roth_401k_raw
+        , post_tax_401k_after_tax_spillover_raw
+        , post_tax_401k_after_tax_bonus_raw
         , post_tax_critical_illness_raw
         , post_tax_ad_d_raw
         , post_tax_long_term_disability_raw
@@ -176,7 +182,9 @@ with cleaned_paystubs_int as (
         , taxes_social_security_usd
         , post_tax_meal_allowance_offset_usd
         , post_tax_fitness_benefit_offset_usd
-        , post_tax_roth_usd
+        , post_tax_roth_401k_usd
+        , post_tax_401k_after_tax_spillover_usd
+        , post_tax_401k_after_tax_bonus_usd
         , post_tax_critical_illness_usd
         , post_tax_ad_d_usd
         , post_tax_long_term_disability_usd
@@ -192,7 +200,7 @@ with cleaned_paystubs_int as (
         ) as earnings_custom_calc_usd  -- Salary + bonus + PTO payout + severance, in USD
         , round(earnings_bonus_usd + earnings_pto_payout_usd + earnings_severance_usd, 2) as bonus_custom_calc_usd  -- Bonus + PTO payout + severance, in USD
         , -1 * round(pre_tax_fsa_usd + pre_tax_medical_usd, 2) as pre_tax_deductions_custom_calc_usd  -- Pre-tax FSA + medical, signed negative, in USD
-        , -1 * round(post_tax_roth_usd + pre_tax_401k_usd, 2) as retirement_fund_custom_calc_usd  -- Roth + 401(k), signed negative, in USD
+        , -1 * round(post_tax_roth_401k_usd + post_tax_401k_after_tax_spillover_usd + post_tax_401k_after_tax_bonus_usd + pre_tax_401k_usd, 2) as retirement_fund_custom_calc_usd  -- Roth 401(k) + after-tax 401(k) spillover + after-tax 401(k) bonus + pre-tax 401(k), signed negative, in USD
         , -1 * round(
             taxes_medicare_usd
             + taxes_federal_usd
