@@ -130,10 +130,25 @@ def test_extract_btc_wallet_history_writes_all_txs_for_each_wallet(monkeypatch):
     assert sorted(df['txid'].tolist()) == ['tx_a1', 'tx_b1']
     row_a = df[df['txid'] == 'tx_a1'].iloc[0]
     assert row_a['wallet_address'] == wallet_a
-    assert row_a['received_sats'] == 10_000
-    assert row_a['sent_sats'] == 0
     assert bool(row_a['confirmed'])
-    assert json.loads(row_a['vout_json'])[0]['value'] == 10_000
+    # raw is API-faithful: vin/vout preserved as JSON, no per-wallet attribution.
+    vout = json.loads(row_a['vout_json'])
+    assert vout[0]['value'] == 10_000
+    assert vout[0]['scriptpubkey_address'] == wallet_a
+    assert json.loads(row_a['vin_json']) == []
+    # raw column set: faithful to API + the wallet_address we queried under.
+    assert set(df.columns) == {
+        'wallet_address',
+        'txid',
+        'fee',
+        'size',
+        'weight',
+        'block_height',
+        'block_time',
+        'confirmed',
+        'vin_json',
+        'vout_json',
+    }
 
 
 def test_extract_btc_wallet_history_paginates_through_multiple_pages(monkeypatch):
@@ -188,14 +203,12 @@ def test_extract_btc_wallet_history_overwrites_existing_parquet(monkeypatch):
             {
                 'wallet_address': wallet,
                 'txid': 'tx_stale',
+                'fee': 0,
+                'size': 1,
+                'weight': 1,
                 'block_height': 100,
                 'block_time': 1_500_000_000,
                 'confirmed': True,
-                'sent_sats': 0,
-                'received_sats': 1,
-                'fee_sats': 0,
-                'size': 1,
-                'weight': 1,
                 'vin_json': '[]',
                 'vout_json': '[]',
             }
@@ -208,7 +221,7 @@ def test_extract_btc_wallet_history_overwrites_existing_parquet(monkeypatch):
     df, _ = s3.writes[0]
 
     assert df['txid'].tolist() == ['tx_new']
-    assert df.iloc[0]['received_sats'] == 9_999
+    assert json.loads(df.iloc[0]['vout_json'])[0]['value'] == 9_999
 
 
 def test_extract_btc_wallet_history_empty_address_list_skips(monkeypatch):

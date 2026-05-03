@@ -113,36 +113,9 @@ def fetch_esplora_address_txs(
     return response.json()
 
 
-def summarize_tx_for_wallet(tx: Dict, wallet_address: str) -> Dict:
-    # Wallet appears in tx.vin → wallet is sending; in tx.vout → receiving.
-    sent_sats = sum(
-        (vin.get('prevout') or {}).get('value', 0)
-        for vin in tx.get('vin', [])
-        if (vin.get('prevout') or {}).get('scriptpubkey_address') == wallet_address
-    )
-    received_sats = sum(
-        vout.get('value', 0)
-        for vout in tx.get('vout', [])
-        if vout.get('scriptpubkey_address') == wallet_address
-    )
-    status = tx.get('status') or {}
-    return {
-        'wallet_address': wallet_address,
-        'txid': tx['txid'],
-        'block_height': status.get('block_height'),
-        'block_time': status.get('block_time'),
-        'confirmed': bool(status.get('confirmed')),
-        'sent_sats': sent_sats,
-        'received_sats': received_sats,
-        'fee_sats': tx.get('fee', 0),
-        'size': tx.get('size'),
-        'weight': tx.get('weight'),
-        'vin_json': json.dumps(tx.get('vin', [])),
-        'vout_json': json.dumps(tx.get('vout', [])),
-    }
-
-
 def fetch_all_wallet_rows(wallet_address: str) -> List[Dict]:
+    # Minimal transformation: flatten status struct, keep vin/vout as JSON.
+    # Per-wallet attribution (received/sent) lives in the cleaned model.
     rows: List[Dict] = []
     last_seen_txid: Optional[str] = None
     while True:
@@ -157,7 +130,21 @@ def fetch_all_wallet_rows(wallet_address: str) -> List[Dict]:
             break
 
         for tx in confirmed_in_batch:
-            rows.append(summarize_tx_for_wallet(tx, wallet_address))
+            status = tx.get('status') or {}
+            rows.append(
+                {
+                    'wallet_address': wallet_address,
+                    'txid': tx['txid'],
+                    'fee': tx.get('fee'),
+                    'size': tx.get('size'),
+                    'weight': tx.get('weight'),
+                    'block_height': status.get('block_height'),
+                    'block_time': status.get('block_time'),
+                    'confirmed': bool(status.get('confirmed')),
+                    'vin_json': json.dumps(tx.get('vin', [])),
+                    'vout_json': json.dumps(tx.get('vout', [])),
+                }
+            )
 
         last_seen_txid = confirmed_in_batch[-1]['txid']
         time.sleep(ESPLORA_REQUEST_DELAY_SECONDS)
