@@ -42,6 +42,7 @@ with cleaned_paystubs_int as (
         , earnings_salary as earnings_salary_raw  -- Base salary, raw string
         , earnings_bonus as earnings_bonus_raw  -- Bonus, raw string
         , earnings_meal_allowance as earnings_meal_allowance_raw  -- Taxable meal allowance, raw string
+        , earnings_fitness_benefit as earnings_fitness_benefit_raw  -- Taxable fitness benefit, raw string
         , earnings_pto_payout as earnings_pto_payout_raw  -- PTO payout, raw string
         , earnings_severance as earnings_severance_raw  -- Severance, raw string
         , earnings_misc as earnings_misc_raw  -- Miscellaneous earnings, raw string
@@ -50,6 +51,7 @@ with cleaned_paystubs_int as (
         , @try_cast_to_float(earnings_salary) as earnings_salary_usd  -- Base salary in USD
         , @try_cast_to_float(earnings_bonus) as earnings_bonus_usd  -- Bonus in USD
         , @try_cast_to_float(earnings_meal_allowance) as earnings_meal_allowance_usd  -- Meal allowance (taxable) in USD
+        , @try_cast_to_float(earnings_fitness_benefit) as earnings_fitness_benefit_usd  -- Fitness benefit (taxable) in USD
         , @try_cast_to_float(earnings_pto_payout) as earnings_pto_payout_usd  -- PTO payout in USD
         , @try_cast_to_float(earnings_severance) as earnings_severance_usd  -- Severance in USD
         , @try_cast_to_float(earnings_misc) as earnings_misc_usd  -- Miscellaneous earnings in USD
@@ -84,12 +86,14 @@ with cleaned_paystubs_int as (
 
         /* Post-tax deductions */
         , post_tax_meal_allowance_offset as post_tax_meal_allowance_offset_raw  -- Offset for taxable meal allowance, raw string
+        , post_tax_fitness_benefit_offset as post_tax_fitness_benefit_offset_raw  -- Offset for taxable fitness benefit, raw string
         , post_tax_roth as post_tax_roth_raw  -- Roth 401(k) contributions, raw string
         , post_tax_critical_illness as post_tax_critical_illness_raw  -- Critical illness premium, raw string
         , post_tax_ad_d as post_tax_ad_d_raw  -- AD&D premium, raw string
         , post_tax_long_term_disability as post_tax_long_term_disability_raw  -- Long-term disability premium, raw string
         , post_tax_citi_bike as post_tax_citi_bike_raw  -- Post-tax Citi Bike deduction, raw string
         , @try_cast_to_float(post_tax_meal_allowance_offset) as post_tax_meal_allowance_offset_usd  -- Meal allowance offset in USD
+        , @try_cast_to_float(post_tax_fitness_benefit_offset) as post_tax_fitness_benefit_offset_usd  -- Fitness benefit offset in USD
         , @try_cast_to_float(post_tax_roth) as post_tax_roth_usd  -- Roth 401(k) contributions in USD
         , @try_cast_to_float(post_tax_critical_illness) as post_tax_critical_illness_usd  -- Critical illness premium in USD
         , @try_cast_to_float(post_tax_ad_d) as post_tax_ad_d_usd  -- AD&D premium in USD
@@ -119,6 +123,7 @@ with cleaned_paystubs_int as (
         , earnings_salary_raw
         , earnings_bonus_raw
         , earnings_meal_allowance_raw
+        , earnings_fitness_benefit_raw
         , earnings_pto_payout_raw
         , earnings_severance_raw
         , earnings_misc_raw
@@ -136,6 +141,7 @@ with cleaned_paystubs_int as (
         , taxes_disability_raw
         , taxes_social_security_raw
         , post_tax_meal_allowance_offset_raw
+        , post_tax_fitness_benefit_offset_raw
         , post_tax_roth_raw
         , post_tax_critical_illness_raw
         , post_tax_ad_d_raw
@@ -151,6 +157,7 @@ with cleaned_paystubs_int as (
         , earnings_salary_usd
         , earnings_bonus_usd
         , earnings_meal_allowance_usd
+        , earnings_fitness_benefit_usd
         , earnings_pto_payout_usd
         , earnings_severance_usd
         , earnings_misc_usd
@@ -168,6 +175,7 @@ with cleaned_paystubs_int as (
         , taxes_disability_usd
         , taxes_social_security_usd
         , post_tax_meal_allowance_offset_usd
+        , post_tax_fitness_benefit_offset_usd
         , post_tax_roth_usd
         , post_tax_critical_illness_usd
         , post_tax_ad_d_usd
