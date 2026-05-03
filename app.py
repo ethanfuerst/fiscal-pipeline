@@ -37,6 +37,7 @@ def update_google_sheet(
     sync_s3: bool = True,
     update_dashboards: bool = True,
     is_local_run: bool = False,
+    env: str = 'prod',
 ):
     if sync_s3:
         logging.info('Running S3 sync.')
@@ -46,7 +47,7 @@ def update_google_sheet(
     if update_dashboards:
         logging.info('Updating dashboards.')
         create_data_warehouse(is_local_run=is_local_run)
-        refresh_sheets()
+        refresh_sheets(env=env)
         logging.info('Dashboard update process completed.')
 
 
@@ -64,16 +65,20 @@ if __name__ == '__main__':
         action='store_true',
         help='Run the dashboard update process.',
     )
+    parser.add_argument(
+        '--env',
+        choices=['dev', 'prod'],
+        default='dev',
+        help='Which Google Sheet/credentials to use. Defaults to dev for local runs.',
+    )
 
     args = parser.parse_args()
 
-    sync_s3 = args.sync_s3
-    update_dashboards = args.update_dashboards
-
-    logging.info('Running fiscal_pipeline_app locally')
+    logging.info(f'Running fiscal_pipeline_app locally against {args.env} sheet')
     update_google_sheet.local(
-        sync_s3=sync_s3,
-        update_dashboards=update_dashboards,
+        sync_s3=args.sync_s3,
+        update_dashboards=args.update_dashboards,
         is_local_run=True,
+        env=args.env,
     )
     logging.info('fiscal_pipeline_app completed')
