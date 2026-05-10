@@ -101,6 +101,19 @@ def load_paystubs_from_sheets(s3: S3FileSystem) -> None:
     s3.write_df_to_parquet(df, f's3://{BUCKET_NAME}/raw-paystubs.parquet')
 
 
+def load_investment_transactions_from_sheets(s3: S3FileSystem) -> None:
+    credentials = json.loads(os.getenv('GSPREAD_CREDENTIALS').replace('\n', '\\n'))
+    with Spreadsheet(
+        credentials=credentials, spreadsheet_name='Investment Transactions'
+    ) as ss:
+        df = ss.worksheet('transactions').read(dtype=str)
+
+    df = df.reset_index(drop=True)
+    s3.write_df_to_parquet(
+        df, f's3://{BUCKET_NAME}/raw-investment-transactions.parquet'
+    )
+
+
 def fetch_esplora_address_txs(
     address: str, last_seen_txid: Optional[str] = None
 ) -> List[Dict]:
@@ -297,6 +310,7 @@ def etl_ynab_data() -> None:
     budget_data = extract_budget_data()
 
     load_paystubs_from_sheets(s3)
+    load_investment_transactions_from_sheets(s3)
     extract_category_groups(budget_data, s3)
     extract_categories(budget_data, s3)
     extract_transactions(budget_data, s3)
