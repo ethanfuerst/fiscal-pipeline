@@ -17,6 +17,7 @@ dependencies = [
     "sqlmesh[web]>=0.186.1",
     "python-dotenv>=1.0.0",
     "eftoolkit>=3.2.0,<4.0.0",
+    "yfinance>=0.2.40",
 ]
 
 [build-system]
