@@ -21,13 +21,15 @@ def _sample_sheet_df() -> pd.DataFrame:
         [
             {
                 'year': '2025',
-                'match_contribution_usd': '8500',
                 'hsa_contribution_usd': '3300',
+                'contribution_limit_401k_usd': '70000',
+                'employee_contribution_limit_401k_usd': '23500',
             },
             {
                 'year': '2026',
-                'match_contribution_usd': '9800',
                 'hsa_contribution_usd': '3375',
+                'contribution_limit_401k_usd': '70000',
+                'employee_contribution_limit_401k_usd': '24000',
             },
         ]
     )
@@ -61,8 +63,9 @@ def test_load_annual_contributions_from_sheets_writes_raw_parquet(monkeypatch):
         assert path.endswith('/raw-annual-contributions.parquet')
         assert list(df.columns) == [
             'year',
-            'match_contribution_usd',
             'hsa_contribution_usd',
+            'contribution_limit_401k_usd',
+            'employee_contribution_limit_401k_usd',
         ]
         assert df['year'].tolist() == ['2025', '2026']
 
