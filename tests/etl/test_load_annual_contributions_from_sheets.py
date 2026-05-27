@@ -23,11 +23,13 @@ def _sample_sheet_df() -> pd.DataFrame:
                 'year': '2025',
                 'match_contribution_usd': '8500',
                 'hsa_contribution_usd': '3300',
+                'contribution_limit_401k_usd': '70000',
             },
             {
                 'year': '2026',
                 'match_contribution_usd': '9800',
                 'hsa_contribution_usd': '3375',
+                'contribution_limit_401k_usd': '70000',
             },
         ]
     )
@@ -63,6 +65,7 @@ def test_load_annual_contributions_from_sheets_writes_raw_parquet(monkeypatch):
             'year',
             'match_contribution_usd',
             'hsa_contribution_usd',
+            'contribution_limit_401k_usd',
         ]
         assert df['year'].tolist() == ['2025', '2026']
 

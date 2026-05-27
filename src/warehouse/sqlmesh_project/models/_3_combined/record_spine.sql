@@ -32,11 +32,19 @@ with date_spine as (
     where trade_date is not null
 )
 
+, paystub_dates as (
+    select distinct pay_date as date
+    from cleaned.paystubs
+    where pay_date is not null
+)
+
 select
     d.date
     , b.date is not null as has_budget_data
     , i.date is not null as has_investment_data
+    , p.date is not null as has_paystub_data
 from date_spine as d
 left join budget_dates as b on b.date = d.date
 left join investment_dates as i on i.date = d.date
+left join paystub_dates as p on p.date = d.date
 order by d.date
