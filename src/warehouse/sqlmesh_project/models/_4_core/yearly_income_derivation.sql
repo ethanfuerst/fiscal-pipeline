@@ -6,7 +6,7 @@ MODEL (
     yearly_income_derivation_allocatable_invariant,
     yearly_income_derivation_bucket_targets_sum
   ),
-  description 'Per-year salary, estimated tax (cadence-based extrapolation for the current year), HSA, match contribution, allocatable income, and 50/30/20 bucket targets.'
+  description 'Per-year salary, estimated tax (cadence-based extrapolation for the current year), HSA, allocatable income, and 50/30/20 bucket targets.'
 );
 
 with paystub_periods as (
@@ -117,16 +117,15 @@ with paystub_periods as (
 
 , allocatable as (
     /*
-        Join annual_contributions for hsa + match_contribution and compute
-        allocatable_income once. The final select then multiplies by 0.50 /
-        0.30 / 0.20 for bucket targets without restating the subtraction.
+        Join annual_contributions for hsa and compute allocatable_income
+        once. The final select then multiplies by 0.50 / 0.30 / 0.20 for
+        bucket targets without restating the subtraction.
     */
     select
         scaled.year
         , scaled.salary
         , scaled.estimated_tax
         , coalesce(annual_contributions.hsa_contribution_usd, 0)::decimal as hsa
-        , coalesce(annual_contributions.match_contribution_usd, 0)::decimal as match_contribution
         , round(
             scaled.salary
             - (scaled.estimated_tax + coalesce(annual_contributions.hsa_contribution_usd, 0))
@@ -144,7 +143,6 @@ select
     , salary
     , estimated_tax
     , hsa
-    , match_contribution
     , allocatable_income
     , round(allocatable_income * 0.50, 2) as needs_target
     , round(allocatable_income * 0.30, 2) as wants_target
