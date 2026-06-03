@@ -7,7 +7,8 @@ SELECT
   needs_target,
   wants_target,
   investments_target,
+  savings_target,
   allocatable_income,
-  needs_target + wants_target + investments_target AS calculated_total
+  needs_target + wants_target + investments_target + savings_target AS calculated_total
 FROM @this_model
-WHERE NOT abs((needs_target + wants_target + investments_target) - allocatable_income) < 0.02;
+WHERE NOT abs((needs_target + wants_target + investments_target + savings_target) - allocatable_income) < 0.02;
