@@ -4,9 +4,10 @@ MODEL (
   grain (year),
   audits (
     yearly_income_derivation_allocatable_invariant,
-    yearly_income_derivation_bucket_targets_sum
+    yearly_income_derivation_bucket_targets_sum,
+    yearly_income_derivation_paystub_inflows_reconcile
   ),
-  description 'Per-year salary, estimated tax (cadence-based extrapolation for the current year), HSA, allocatable income, and 50/30/15/5 bucket targets (Needs/Wants/Investments/Savings).'
+  description 'Per-year salary, estimated tax (cadence-based extrapolation for the current year), HSA, allocatable income, 50/30/15/5 bucket targets (Needs/Wants/Investments/Savings), and extra_income (net-to-account one-off inflows: bonus/severance/PTO payout/refunds/interest/cashback, actual YTD, not extrapolated; does not feed allocatable_income).'
 );
 
 with paystub_periods as (
@@ -138,17 +139,45 @@ with paystub_periods as (
         on scaled.year = annual_contributions.year
 )
 
+, extra_income_by_year as (
+    /*
+        Per-year extra income: every net inflow assigned to Ready-to-Assign
+        (the YNAB `Income` mapping) that is NOT a regular-salary paycheck.
+        core.daily_ledger links each paycheck deposit to its paystub, so
+        excluding inflows linked to a salary paystub (earnings_salary_usd > 0)
+        strips net salary without payee matching or a salary double-count.
+        What remains is net-to-account one-off income: bonus, severance, PTO
+        payout, tax refunds, interest, cashback, and side deposits. Actual YTD
+        for the current year — one-offs are never extrapolated. Join on the
+        unique paystub file_name (not daily_ledger's rank-gated salary column)
+        so a split paycheck is still classified by its paystub type.
+    */
+    select
+        cast(extract('year' from daily_ledger.ledger_date) as integer) as year
+        , round(sum(daily_ledger.transaction_amount_usd), 2) as extra_income
+    from core.daily_ledger as daily_ledger
+    left join cleaned.paystubs as paystubs
+        on daily_ledger.paystub_file_name = paystubs.file_name
+    where daily_ledger.category_group_name_mapping = 'Income'
+        and daily_ledger.transaction_amount_usd > 0
+        and coalesce(paystubs.earnings_salary_usd, 0) = 0
+    group by 1
+)
+
 select
-    year
-    , salary
-    , estimated_tax
-    , hsa
-    , allocatable_income
-    , round(allocatable_income * 0.50, 2) as needs_target
-    , round(allocatable_income * 0.30, 2) as wants_target
-    , round(allocatable_income * 0.15, 2) as investments_target
-    , round(allocatable_income * 0.05, 2) as savings_target
-    , is_extrapolated
-    , latest_pay_date
+    allocatable.year
+    , allocatable.salary
+    , allocatable.estimated_tax
+    , allocatable.hsa
+    , allocatable.allocatable_income
+    , round(allocatable.allocatable_income * 0.50, 2) as needs_target
+    , round(allocatable.allocatable_income * 0.30, 2) as wants_target
+    , round(allocatable.allocatable_income * 0.15, 2) as investments_target
+    , round(allocatable.allocatable_income * 0.05, 2) as savings_target
+    , coalesce(extra_income_by_year.extra_income, 0) as extra_income
+    , allocatable.is_extrapolated
+    , allocatable.latest_pay_date
 from allocatable
-order by year desc
+left join extra_income_by_year
+    on allocatable.year = extra_income_by_year.year
+order by allocatable.year desc
