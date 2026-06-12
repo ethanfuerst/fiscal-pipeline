@@ -6,10 +6,15 @@ from dotenv import load_dotenv
 from eftoolkit.gsheets.runner import DashboardRunner
 from eftoolkit.utils import setup_logging
 
+from src.sheets.worksheets.bucket_adherence import BucketAdherenceWorksheet
+from src.sheets.worksheets.category_drilldown import CategoryDrilldownWorksheet
+from src.sheets.worksheets.income_derivation import IncomeDerivationWorksheet
+from src.sheets.worksheets.investments import InvestmentsWorksheet
 from src.sheets.worksheets.overview import (
     OverviewMonthlyWorksheet,
     OverviewYearlyWorksheet,
 )
+from src.sheets.worksheets.runway import RunwayWorksheet
 from src.utils import get_duckdb
 
 setup_logging()
@@ -31,6 +36,11 @@ def refresh_sheets(env: str = 'prod') -> None:
             worksheets=[
                 OverviewYearlyWorksheet(),
                 OverviewMonthlyWorksheet(),
+                IncomeDerivationWorksheet(),
+                BucketAdherenceWorksheet(),
+                InvestmentsWorksheet(),
+                CategoryDrilldownWorksheet(),
+                RunwayWorksheet(),
             ],
         )
         logging.info(f'Running dashboard refresh against {env} sheet ({sheet_name!r})')
