@@ -27,7 +27,9 @@ def extract_budget_data() -> Dict:
     response = requests.get(
         f'https://api.ynab.com/v1/budgets/{budget_id}',
         headers={'Authorization': f'Bearer {bearer_token}'},
+        timeout=30,
     )
+    response.raise_for_status()
 
     logging.info('Extracted budget data')
 
