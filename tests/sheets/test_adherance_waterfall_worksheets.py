@@ -121,7 +121,7 @@ def test_monthly_waterfall_generate_uses_monthly_model_and_formats_month(
     assert 'Emergency Reserve Surplus' not in asset.df.columns
     assert 'Reserve Surplus' in asset.df.columns
     assert 'Emergency Fund Gap' not in asset.df.columns
-    assert 'HSA Value for Reimbursement' in asset.df.columns
+    assert 'HSA Value for Reimbursement' not in asset.df.columns
     assert 'Other Savings Balance' in asset.df.columns
     assert 'Monthly Cash Spend' not in asset.df.columns
     assert 'Avg Monthly Cash Spend - Prior 3 Months' not in asset.df.columns
@@ -148,7 +148,7 @@ def test_yearly_waterfall_generate_uses_yearly_model_and_hides_runway_month(
     assert 'Emergency Reserve Surplus' not in assets[0].df.columns
     assert 'Reserve Surplus' in assets[0].df.columns
     assert 'Emergency Fund Gap' not in assets[0].df.columns
-    assert 'HSA Value for Reimbursement' in assets[0].df.columns
+    assert 'HSA Value for Reimbursement' not in assets[0].df.columns
     assert 'Monthly Cash Spend' not in assets[0].df.columns
 
 

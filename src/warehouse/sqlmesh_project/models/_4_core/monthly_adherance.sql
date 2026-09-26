@@ -78,7 +78,6 @@ select
     , plan_income  -- Income basis for the 50/30/15/5 targets from net income deposited to budget accounts, positive USD
     , payroll_retirement_saved  -- Retirement contributions through payroll, positive USD saved
     , payroll_hsa_saved  -- HSA contributions through payroll, positive USD saved
-    , hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
     , budgeted_investments_saved  -- Budgeted taxable investments, positive USD saved
     , budgeted_savings_saved  -- Budgeted Savings category assignments, positive USD saved
     , budgeted_emergency_fund_saved  -- Budgeted Emergency Fund category assignments, positive USD saved

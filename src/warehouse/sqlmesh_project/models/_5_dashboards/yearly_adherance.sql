@@ -21,7 +21,6 @@ with monthly_adherance as (
         , sum(plan_income) as plan_income  -- Income basis for the 50/30/15/5 targets from net income deposited to budget accounts, positive USD
         , sum(payroll_retirement_saved) as payroll_retirement_saved  -- Retirement contributions through payroll, positive USD saved
         , sum(payroll_hsa_saved) as payroll_hsa_saved  -- HSA contributions through payroll, positive USD saved
-        , sum(hsa_reimbursement_eligible_saved) as hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
         , sum(budgeted_investments_saved) as budgeted_investments_saved  -- Budgeted taxable investments, positive USD saved
         , sum(budgeted_savings_saved) as budgeted_savings_saved  -- Budgeted Savings category assignments, positive USD saved
         , sum(budgeted_emergency_fund_saved) as budgeted_emergency_fund_saved  -- Budgeted Emergency Fund category assignments, positive USD saved
@@ -121,7 +120,6 @@ select
     , final.plan_income  -- Income basis for the 50/30/15/5 targets from net income deposited to budget accounts, positive USD
     , final.payroll_retirement_saved  -- Retirement contributions through payroll, positive USD saved
     , final.payroll_hsa_saved  -- HSA contributions through payroll, positive USD saved
-    , final.hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
     , final.budgeted_investments_saved  -- Budgeted taxable investments, positive USD saved
     , final.budgeted_savings_saved  -- Budgeted Savings category assignments, positive USD saved
     , final.budgeted_emergency_fund_saved  -- Budgeted Emergency Fund category assignments, positive USD saved

@@ -10,7 +10,6 @@ with monthly_base as (
         budget_month
         , net_income_to_account
         , plan_income
-        , hsa_reimbursement_eligible_saved
         , emergency_fund_balance
         , target_needs_spend
         , actual_needs_spend
@@ -61,7 +60,6 @@ with monthly_base as (
         monthly_base.budget_month
         , monthly_base.net_income_to_account
         , monthly_base.plan_income
-        , monthly_base.hsa_reimbursement_eligible_saved
         , monthly_base.emergency_fund_balance
         , monthly_base.target_needs_spend
         , monthly_base.actual_needs_spend
@@ -113,7 +111,6 @@ with monthly_base as (
         budget_month
         , net_income_to_account
         , plan_income
-        , hsa_reimbursement_eligible_saved
         , emergency_fund_balance
         , target_needs_spend
         , actual_needs_spend
@@ -158,7 +155,6 @@ with monthly_base as (
         budget_month
         , net_income_to_account
         , plan_income
-        , hsa_reimbursement_eligible_saved
         , emergency_fund_balance
         , target_needs_spend
         , actual_needs_spend
@@ -239,7 +235,6 @@ with monthly_base as (
             )
         )::decimal as starting_buffer_balance_saved  -- Buffer Balance at the end of the prior month, positive/negative USD
         , sum(overflow_dollars_saved) over (order by budget_month rows between unbounded preceding and current row)::decimal as running_overflow_balance_saved  -- Running total of monthly overflow dollars, positive/negative USD
-        , sum(hsa_reimbursement_eligible_saved) over (order by budget_month rows between unbounded preceding and current row)::decimal as hsa_reimbursement_value_saved  -- Running HSA-reimbursable spend preserved for future reimbursement, positive USD
         , (
             needs_wants_balance
             + sum(net_income_to_account) over (order by budget_month rows between unbounded preceding and current row)
@@ -329,7 +324,6 @@ select
     budget_month  -- First day of the budget month
     , net_income_to_account  -- Net income deposited to budget accounts, positive USD
     , plan_income  -- Income basis for the 50/30/15/5 targets from net income deposited to budget accounts, positive USD
-    , hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend in the month, positive USD
     , greatest(coalesce(target_needs_spend, 0), 0)::decimal as target_needs_spend  -- 50% Needs spend target, non-negative USD
     , least(coalesce(actual_needs_spend, 0) * -1, 0)::decimal as actual_needs_spend  -- Actual Needs spend, non-positive USD
     , greatest(coalesce(target_needs_spend, 0), 0) + least(coalesce(actual_needs_spend, 0) * -1, 0) as needs_surplus_spend  -- Needs target plus signed spend; positive is remaining target and negative is over target
@@ -358,7 +352,6 @@ select
     , emergency_fund_gap_saved  -- Additional Emergency Fund balance needed to hit the three-month target, positive USD
     , emergency_fund_surplus_saved  -- Emergency Fund balance minus the three-month target, positive/negative USD
     , reserve_surplus_saved  -- Combined cash reserve surplus after applying Emergency Fund surplus against Buffer shortfall, positive/negative USD
-    , hsa_reimbursement_value_saved  -- Running HSA-reimbursable spend preserved for future reimbursement, positive USD
     , other_savings_balance_saved  -- Savings balance outside the Emergency Fund bucket, USD
     , actual_rollover  -- Net-to-account income left after actual budget-account spend and budgeted saved amounts
     , runway_cash_saved  -- Net income not assigned in the budget month, assumed to be budgeted into future months, positive USD

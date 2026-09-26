@@ -47,7 +47,6 @@ with yearly_base as (
         , used_from_buffer_saved
         , uncovered_shortfall_spend
         , true_excess_saved
-        , hsa_reimbursement_value_saved
         , emergency_fund_balance
         , emergency_fund_target_saved
         , emergency_fund_gap_saved
@@ -94,7 +93,6 @@ with yearly_base as (
         , used_from_buffer_saved
         , uncovered_shortfall_spend
         , true_excess_saved
-        , hsa_reimbursement_value_saved
         , emergency_fund_balance
         , emergency_fund_target_saved
         , emergency_fund_gap_saved
@@ -122,7 +120,6 @@ with yearly_base as (
             , used_from_buffer_saved
             , uncovered_shortfall_spend
             , true_excess_saved
-            , hsa_reimbursement_value_saved
             , emergency_fund_balance
             , emergency_fund_target_saved
             , emergency_fund_gap_saved
@@ -180,7 +177,6 @@ with yearly_base as (
         , latest_monthly_runway.used_from_buffer_saved
         , latest_monthly_runway.uncovered_shortfall_spend
         , latest_monthly_runway.true_excess_saved
-        , latest_monthly_runway.hsa_reimbursement_value_saved
         , latest_monthly_runway.emergency_fund_balance
         , latest_monthly_runway.emergency_fund_target_saved
         , latest_monthly_runway.emergency_fund_gap_saved
@@ -276,7 +272,6 @@ select
     , emergency_fund_gap_saved  -- Additional Emergency Fund balance needed to hit the three-month target, positive USD
     , emergency_fund_surplus_saved  -- Latest Emergency Fund balance minus the three-month target, positive/negative USD
     , reserve_surplus_saved  -- Combined cash reserve surplus after applying Emergency Fund surplus against Buffer shortfall, positive/negative USD
-    , hsa_reimbursement_value_saved  -- Latest running HSA-reimbursable spend preserved for future reimbursement, positive USD
     , other_savings_balance_saved  -- Latest Savings balance outside the Emergency Fund bucket, USD
     , actual_rollover  -- Net-to-account income left after actual budget-account spend and budgeted saved amounts
     , runway_budget_month  -- Latest month represented in the yearly runway metrics

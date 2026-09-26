@@ -21,9 +21,8 @@ OVERVIEW_COLUMN_WIDTH_MAPPING = {
     'T': 75,
     'U': 100,
     'V': 100,
-    'W': 95,
-    'X': 85,
-    'Y': 80,
+    'W': 85,
+    'X': 80,
     'Z': 21,
 }
 OVERVIEW_COLUMN_TITLES = [
@@ -47,7 +46,6 @@ OVERVIEW_COLUMN_TITLES = [
     'Savings Saved',
     'Emergency Fund Saved',
     'Investments Saved',
-    'Emergency Fund in HSA',
     'Total Spend',
     'Net Income',
 ]
@@ -73,19 +71,19 @@ LEFT_ALIGN_PLAIN_TEXT = {
 }
 
 OVERVIEW_MONTHLY_FORMAT = {
-    'B2:Y2': HEADER_FORMAT,
+    'B2:X2': HEADER_FORMAT,
     'B3:B': {
         'horizontalAlignment': 'RIGHT',
         'numberFormat': {'type': 'DATE', 'pattern': 'MM/yyyy'},
     },
-    'C3:Y': CURRENCY_FORMAT,
+    'C3:X': CURRENCY_FORMAT,
 }
 OVERVIEW_YEARLY_FORMAT = {
-    'B2:Y2': HEADER_FORMAT,
+    'B2:X2': HEADER_FORMAT,
     'B3:B': {
         'horizontalAlignment': 'RIGHT',
     },
-    'C3:Y': CURRENCY_FORMAT,
+    'C3:X': CURRENCY_FORMAT,
 }
 OVERVIEW_NOTES = {
     'C2': 'Gross Earnings',
@@ -100,7 +98,6 @@ OVERVIEW_NOTES = {
     'N2': 'Any income not from an employer. Credit Card Cash Back, Selling items, gifts, etc.',
     'O2': 'Net Pay + Miscellaneous Income',
     'V2': 'Investment categories equal 0 at the end of the month and all money budgeted is invested.',
-    'W2': 'Amount spent on items that can be reimbursed by the HSA, but have not been reimbursed yet. This money can be used for emergency expenses as a last resort.',
-    'X2': 'Needs Spend + Wants Spend + Savings Spend + Emergency Fund Spend',
-    'Y2': 'Total Income (Net to Account) - Total Spend',
+    'W2': 'Needs Spend + Wants Spend + Savings Spend + Emergency Fund Spend',
+    'X2': 'Total Income (Net to Account) - Total Spend',
 }

@@ -31,8 +31,6 @@ select
     , sum(monthly_level_dashboard.emergency_fund_saved)
         as emergency_fund_saved  -- Amount assigned to Emergency Fund categories, positive USD
     , sum(monthly_level_dashboard.investments_saved) as investments_saved  -- Amount assigned to Investments categories, positive USD
-    , sum(monthly_level_dashboard.emergency_fund_in_hsa)
-        as emergency_fund_in_hsa  -- Net HSA-reimbursable spend, positive USD
     , sum(monthly_level_dashboard.spent) as spent  -- Total Needs/Wants/Savings/Emergency Fund spend, signed negative for dashboard display
     , sum(monthly_level_dashboard.difference) as difference  -- Total income plus signed spend, positive/negative USD
 from dashboards.monthly_level as monthly_level_dashboard

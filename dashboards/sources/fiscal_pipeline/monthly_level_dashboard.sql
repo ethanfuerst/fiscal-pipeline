@@ -18,7 +18,6 @@ select
     , savings_saved
     , emergency_fund_saved
     , investments_saved
-    , emergency_fund_in_hsa
     , spent
     , difference
 from fiscal_pipeline.dashboards.monthly_level
