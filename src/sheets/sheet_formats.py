@@ -23,7 +23,6 @@ OVERVIEW_COLUMN_WIDTH_MAPPING = {
     'V': 100,
     'W': 85,
     'X': 80,
-    'Z': 21,
 }
 OVERVIEW_COLUMN_TITLES = [
     'Pre-Tax Earnings',
