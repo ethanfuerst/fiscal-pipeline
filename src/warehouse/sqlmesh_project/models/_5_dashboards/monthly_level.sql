@@ -2,6 +2,9 @@ MODEL (
   name dashboards.monthly_level,
   kind FULL,
   grain budget_month,
+  audits (
+    monthly_needs_wants_match_transactions
+  ),
   description 'Monthly dashboard overview. This layer preserves the legacy signed dashboard contract: deduction/spend columns are negative, income/saved columns are positive.'
 );
 
