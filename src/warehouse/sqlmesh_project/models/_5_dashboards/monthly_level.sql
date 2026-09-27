@@ -2,6 +2,9 @@ MODEL (
   name dashboards.monthly_level,
   kind FULL,
   grain budget_month,
+  audits (
+    monthly_needs_wants_match_transactions
+  ),
   description 'Monthly dashboard overview. This layer preserves the legacy signed dashboard contract: deduction/spend columns are negative, income/saved columns are positive.'
 );
 
@@ -9,7 +12,6 @@ with monthly_ledger as (
     select
         date_trunc('month', ledger_date) as budget_month  -- First day of the budget month
         , sum(if(category_group_name_mapping = 'Income', coalesce(transaction_inflow_usd, 0) - coalesce(transaction_outflow_usd, 0), 0)) as income  -- Net income-category ledger activity, positive for net inflow
-        , sum(if(category_name like '%HSA%', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as emergency_fund_in_hsa  -- Net HSA-reimbursable spend, positive for unreimbursed outflow
         , sum(if(category_group_name_mapping = 'Needs', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as needs_spend  -- Needs net spend, positive USD
         , sum(if(category_group_name_mapping = 'Wants', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as wants_spend  -- Wants net spend, positive USD
         , sum(if(category_group_name_mapping = 'Savings', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as savings_spend  -- Savings net spend, positive USD
@@ -56,7 +58,6 @@ select
     , coalesce(monthly_budgeted.savings_saved, 0)::decimal as savings_saved  -- Amount assigned to Savings categories, positive USD
     , coalesce(monthly_budgeted.emergency_fund_saved, 0)::decimal as emergency_fund_saved  -- Amount assigned to Emergency Fund categories, positive USD
     , coalesce(monthly_budgeted.investments_saved, 0)::decimal as investments_saved  -- Amount assigned to Investments categories, positive USD
-    , coalesce(monthly_ledger.emergency_fund_in_hsa, 0)::decimal as emergency_fund_in_hsa  -- Net HSA-reimbursable spend, positive USD
     , -1 * coalesce(
         monthly_ledger.needs_spend
         + monthly_ledger.wants_spend

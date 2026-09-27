@@ -54,11 +54,11 @@ class OverviewWorksheetBase:
 
     def trim_to_data_hook(self, ctx: HookContext) -> None:
         # Header writes at B2, so the last data row is row 2 + len(df).
-        # +1 leaves a single empty buffer row below; columns are B..Y data
-        # plus column A (left buffer) and column Z (right buffer).
+        # +1 leaves a single empty buffer row below; column A remains as the
+        # left margin and the sheet ends at the last data column.
         num_rows = len(ctx.asset.df)
         num_cols = len(ctx.asset.df.columns)
-        ctx.worksheet.resize_sheet(rows=num_rows + 3, columns=num_cols + 2)
+        ctx.worksheet.resize_sheet(rows=num_rows + 3, columns=num_cols + 1)
 
     def generate(self, config: dict, context: dict) -> List[WorksheetAsset]:
         df = self.load_df(config['db'])
@@ -76,7 +76,7 @@ class OverviewWorksheetBase:
             return None
         num_rows = assets[0].num_rows
         sheet_height = num_rows + 3
-        sheet_width = len(assets[0].df.columns) + 2
+        sheet_width = len(assets[0].df.columns) + 1
 
         return WorksheetFormatting(
             notes=dict(OVERVIEW_NOTES),
@@ -92,7 +92,7 @@ def overview_borders(sheet_height: int) -> Dict[str, Dict[str, Any]]:
 
     if sheet_height > 4:
         borders[f'B3:B{sheet_height - 2}'] = {'left': {'style': 'SOLID'}}
-        borders[f'Y3:Y{sheet_height - 2}'] = {'right': {'style': 'SOLID'}}
+        borders[f'X3:X{sheet_height - 2}'] = {'right': {'style': 'SOLID'}}
 
     borders['C2:X2'] = {
         'top': {'style': 'SOLID'},

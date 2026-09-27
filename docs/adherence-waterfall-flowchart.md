@@ -84,7 +84,6 @@ flowchart TB
     rolling_savings --> other_savings[Other Savings Balance]
     ef_balance[Emergency Fund Balance] --> other_savings
 
-    hsa[HSA Value for Reimbursement] --> extra_savings[Extra Savings Signal]
 ```
 
 ## Current Sheet Logic
@@ -114,7 +113,6 @@ flowchart TB
 | `Emergency Fund Balance` | Cash emergency fund balance in YNAB. |
 | `Emergency Fund Surplus` | Emergency Fund Balance minus Emergency Fund Target. HSA reimbursement value is not included. |
 | `Reserve Surplus` | Buffer Surplus plus Emergency Fund Surplus. This is the combined cash reserve amount to drive toward zero. |
-| `HSA Value for Reimbursement` | Running total of HSA-reimbursable spending that could be reimbursed later. This is extra savings, not emergency fund cash. |
 | `Other Savings Balance` | Savings category balance outside the Emergency Fund cash balance. |
 | `Used From Buffer` | Negative monthly overflow covered by current Needs/Wants available. |
 
@@ -137,5 +135,4 @@ Emergency Fund Target = Buffer Target * 3
 Emergency Fund Surplus = Emergency Fund Balance - Emergency Fund Target
 Reserve Surplus = Buffer Surplus + Emergency Fund Surplus
 
-HSA Value for Reimbursement is tracked separately from Reserve Surplus.
 ```

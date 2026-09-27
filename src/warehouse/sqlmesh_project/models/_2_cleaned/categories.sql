@@ -29,4 +29,4 @@ select
     ) as category_name  -- Cleaned category name (noise stripped, whitespace collapsed)
     , coalesce(hidden, false) as is_hidden  -- True when hidden = true (NULL coerced to false)
 from raw.monthly_categories
-qualify row_number() over (partition by id order by month desc, year desc) = 1
+qualify row_number() over (partition by id order by year desc, month desc) = 1

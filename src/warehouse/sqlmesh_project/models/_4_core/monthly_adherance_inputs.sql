@@ -9,7 +9,6 @@ with monthly_ledger as (
     select
         date_trunc('month', ledger_date) as budget_month  -- First day of the budget month
         , sum(if(category_group_name_mapping = 'Income', coalesce(transaction_inflow_usd, 0) - coalesce(transaction_outflow_usd, 0), 0)) as net_income_to_account  -- Net income deposited to budget accounts, positive USD
-        , sum(if(category_name like '%HSA%', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
         , sum(if(category_group_name_mapping = 'Needs', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as needs_spend  -- Needs net spend, positive USD
         , sum(if(category_group_name_mapping = 'Wants', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as wants_spend  -- Wants net spend, positive USD
         , sum(if(category_group_name_mapping = 'Savings', coalesce(transaction_outflow_usd, 0) - coalesce(transaction_inflow_usd, 0), 0)) as savings_spend  -- Savings net spend, positive USD
@@ -43,7 +42,6 @@ with monthly_ledger as (
         , coalesce(monthly_ledger.net_income_to_account, 0)::decimal as plan_income  -- Income basis for 50/30/15/5 from net income deposited to budget accounts, positive USD
         , coalesce(monthly_ledger.payroll_retirement_saved, 0)::decimal as payroll_retirement_saved  -- Retirement contributions through payroll, positive USD saved
         , coalesce(monthly_ledger.payroll_hsa_saved, 0)::decimal as payroll_hsa_saved  -- HSA contributions through payroll, positive USD saved
-        , coalesce(monthly_ledger.hsa_reimbursement_eligible_saved, 0)::decimal as hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
         , coalesce(monthly_budgeted.investments_saved, 0)::decimal as budgeted_investments_saved  -- Budgeted taxable investments, positive USD saved
         , coalesce(monthly_budgeted.savings_saved, 0)::decimal as budgeted_savings_saved  -- Budgeted Savings category assignments, positive USD saved
         , coalesce(monthly_budgeted.emergency_fund_saved, 0)::decimal as budgeted_emergency_fund_saved  -- Budgeted Emergency Fund category assignments, positive USD saved
@@ -84,7 +82,6 @@ select
     , plan_income  -- Income basis for the 50/30/15/5 targets from net income deposited to budget accounts, positive USD
     , payroll_retirement_saved  -- Retirement contributions through payroll, positive USD saved
     , payroll_hsa_saved  -- HSA contributions through payroll, positive USD saved
-    , hsa_reimbursement_eligible_saved  -- HSA-reimbursable spend being preserved as future emergency-fund value, positive USD saved
     , budgeted_investments_saved  -- Budgeted taxable investments, positive USD saved
     , budgeted_savings_saved  -- Budgeted Savings category assignments, positive USD saved
     , budgeted_emergency_fund_saved  -- Budgeted Emergency Fund category assignments, positive USD saved
