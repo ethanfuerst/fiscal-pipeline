@@ -105,7 +105,7 @@ def overview_borders(sheet_height: int) -> Dict[str, Dict[str, Any]]:
         'top': {'style': 'SOLID'},
         'bottom': {'style': 'SOLID'},
     }
-    borders['Y2'] = {
+    borders['X2'] = {
         'right': {'style': 'SOLID'},
         'top': {'style': 'SOLID'},
         'bottom': {'style': 'SOLID'},
@@ -114,14 +114,14 @@ def overview_borders(sheet_height: int) -> Dict[str, Dict[str, Any]]:
         'left': {'style': 'SOLID'},
         'bottom': {'style': 'SOLID'},
     }
-    borders[f'Y{sheet_height - 1}'] = {
+    borders[f'X{sheet_height - 1}'] = {
         'right': {'style': 'SOLID'},
         'bottom': {'style': 'SOLID'},
     }
 
-    columns_to_format = ['C', 'D', 'F', 'K', 'L', 'P', 'T', 'W', 'X', 'Y']
+    columns_to_format = ['C', 'D', 'F', 'K', 'L', 'P', 'T', 'W', 'X']
     for col in columns_to_format:
-        is_column_y = col == 'Y'
+        is_last_column = col == 'X'
         sides_middle: Dict[str, Any] = {'left': {'style': 'SOLID'}}
         sides_top: Dict[str, Any] = {
             'left': {'style': 'SOLID'},
@@ -131,7 +131,7 @@ def overview_borders(sheet_height: int) -> Dict[str, Dict[str, Any]]:
             'left': {'style': 'SOLID'},
             'bottom': {'style': 'SOLID'},
         }
-        if is_column_y:
+        if is_last_column:
             sides_middle['right'] = {'style': 'SOLID'}
             sides_top['right'] = {'style': 'SOLID'}
             sides_bottom['right'] = {'style': 'SOLID'}
