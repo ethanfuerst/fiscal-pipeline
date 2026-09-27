@@ -2,7 +2,6 @@ AUDIT (
   name daily_ledger_manual_paystub_file_name_resolves
 );
 
-JINJA_QUERY_BEGIN;
 SELECT DISTINCT
   paystub_file_name,
   transaction_id,
@@ -12,6 +11,5 @@ FROM @this_model
 WHERE paystub_link_source = 'manual'
   AND paystub_file_name IS NOT NULL
   AND paystub_file_name NOT IN (
-    SELECT file_name FROM {{ resolve_table('combined.paystubs') }} WHERE file_name IS NOT NULL
+    SELECT file_name FROM combined.paystubs WHERE file_name IS NOT NULL
   );
-JINJA_END;

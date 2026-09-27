@@ -2,7 +2,6 @@ AUDIT (
   name monthly_needs_wants_match_transactions
 );
 
-JINJA_QUERY_BEGIN;
 WITH transaction_totals AS (
   SELECT
     DATE_TRUNC('month', transaction_date) AS budget_month,
@@ -20,7 +19,7 @@ WITH transaction_totals AS (
         ELSE 0
       END
     ) AS wants_spend
-  FROM {{ resolve_table('combined.transactions') }}
+  FROM combined.transactions
   GROUP BY 1
 ),
 dashboard AS (
@@ -39,4 +38,3 @@ WHERE ROUND(COALESCE(transaction_totals.needs_spend, 0), 2)
       != ROUND(COALESCE(dashboard.needs_spend, 0), 2)
   OR ROUND(COALESCE(transaction_totals.wants_spend, 0), 2)
       != ROUND(COALESCE(dashboard.wants_spend, 0), 2);
-JINJA_END;
