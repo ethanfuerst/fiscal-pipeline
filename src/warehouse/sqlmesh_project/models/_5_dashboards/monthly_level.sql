@@ -2,6 +2,7 @@ MODEL (
   name dashboards.monthly_level,
   kind FULL,
   grain budget_month,
+  depends_on (combined.transactions),
   audits (
     monthly_needs_wants_match_transactions
   ),
